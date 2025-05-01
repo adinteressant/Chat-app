@@ -2,6 +2,8 @@ import { signOut } from 'firebase/auth'
 import { useAuthContext } from '../context/authContext'
 import { Link, useNavigate } from 'react-router-dom'
 import { auth } from '../firebase'
+import Chat from './chat'
+import Messages from './messages'
 
 const Homepage = () => {
   const navigate = useNavigate()
@@ -20,15 +22,21 @@ const Homepage = () => {
   }
   if(user.displayName && !loading){
   
-    return <div>
-      <div>welcome {user.displayName}</div>
+    return <div className="p-2">
+    <div className="flex gap-1 items-center">
       <div>
-        <img src={auth.currentUser.photoURL} alt="photo"/>
+        <img src={auth.currentUser.photoURL} alt="photo" className="rounded-full w-10 h-10"/>
       </div>
-
+      <div>{user.displayName}</div>
+    </div>
 
       <div>
         <button className="border cursor-pointer" onClick={handleLogout}>logout</button>
+      </div>
+
+      <div className="border m-2 flex flex-col">
+        <Messages/>
+        <Chat/>
       </div>
     </div>
   }

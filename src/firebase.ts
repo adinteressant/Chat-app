@@ -15,7 +15,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
-export const db = getFirestore(app) //auth object now gives access to all the authentication services provided by firebase
-export const auth = getAuth(app)
+export const db = getFirestore(app)
+export const auth = getAuth(app) //auth object now gives access to all the authentication services provided by firebase
+
 export const googleProvider = new GoogleAuthProvider() //provider needed for google login
 //for normal username/password login system a provider class not needed
