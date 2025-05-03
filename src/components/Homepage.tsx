@@ -25,18 +25,21 @@ const Homepage = () => {
     return <div className="p-2">
     <div className="flex gap-1 items-center">
       <div>
-        <img src={auth.currentUser.photoURL} alt="photo" className="rounded-full w-10 h-10"/>
+        <img src={user.photoURL} alt="photo" className="rounded-full w-10 h-10"/>
       </div>
       <div>{user.displayName}</div>
-    </div>
+    
 
       <div>
-        <button className="border cursor-pointer" onClick={handleLogout}>logout</button>
+        <button className="p-1.5 hover:bg-cyan-700
+        text-slate-50 bg-cyan-600 rounded-md cursor-pointer" onClick={handleLogout}>Logout</button>
       </div>
-
-      <div className="border m-2 flex flex-col">
+    </div>
+    <div className="w-xl">
+      <div className="m-2 pb-16 flex flex-col bg-slate-600 p-2 w-xl fixed overflow-y-auto top-16 bottom-2 rounded-md">
         <Messages/>
-        <Chat/>
+      </div>
+      <Chat/>
       </div>
     </div>
   }

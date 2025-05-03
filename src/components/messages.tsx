@@ -18,23 +18,29 @@ const Messages = () => {
     return ()=>ss()
   },[])
 
-  return <div className="flex flex-col">
+  return <div className="flex flex-col gap-2">
   {Msgs.map((message,index) =>{
     let position:string
+    let backgroundColor:string
     const fromMe:boolean = message.sender===user.email
     if(fromMe){
-      position = 'justify-end' 
+      position = 'justify-end'
+      backgroundColor = 'bg-cyan-600'
     }else{
       position = 'justify-start'
+      backgroundColor = 'bg-slate-400'
     }
     return (
-      <div key={index} className={`flex gap-1 ${position}`}>
+      <div key={index} className={`flex gap-1 items-end ${position} flex-1`}>
       {!fromMe &&
         <div>
-          {message.sender.split('@')[0]}
+          <img className="w-10 h-10 rounded-full" src={message.imageURL} alt="photo"/>     
         </div>}
-        <div>
+        <div className="flex flex-col">
+        {!fromMe && <div className="text-slate-200 text-sm">{message.sender.split('@')[0]}</div>}
+        <div className={`${backgroundColor} p-2 rounded-xl text-slate-50`}>
           {message.message}
+        </div>
         </div>
       </div>
     )

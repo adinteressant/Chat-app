@@ -3,7 +3,8 @@ import { auth } from '../firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 type User = {
   displayName:string,
-  email:string
+  email:string,
+  photoURL:string
 }
 type UserContext = {
   user:User,
@@ -18,14 +19,16 @@ export const useAuthContext = ():UserContext|null =>{
 export const AuthContextProvider = ({children}:{children:React.ReactNode}) => {
 const [user,setUser] = useState<User>({
   displayName:'',
-  email:''
+  email:'',
+  photoURL:''
 })
 const [loading,setLoading] = useState<boolean>(true)
 useEffect(()=>{
       const ss = onAuthStateChanged(auth,currUser=>{
         setUser({
           displayName:currUser?.displayName || '',
-          email:currUser?.email || ''
+          email:currUser?.email || '',
+          photoURL:currUser?.photoURL || ''
         })
         setLoading(false)
     })
