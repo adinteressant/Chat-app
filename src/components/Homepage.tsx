@@ -20,7 +20,7 @@ const Homepage = () => {
       console.log(err)
     }
   }
-  if(user.displayName && !loading){
+    if(user.displayName && !loading){
   
     return <div className="p-2">
     <div className="flex gap-1 items-center">

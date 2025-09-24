@@ -8,13 +8,14 @@ const Chat = () => {
   const [message,setMessage] = useState<string>('')
   const handleSend = async ():Promise<void> => {
     if(!message.trim()) return 
+    setMessage('')
     await addDoc(collection(db,'chat','global','messages'),{
       message:message.trim(),
       sender:user.email,
+      senderName:user.displayName,
       imageURL:auth.currentUser?.photoURL || '',
       timestamp: serverTimestamp()
     })
-    setMessage('')
   }
   return <div className="p-2 flex gap-1 fixed bottom-4 w-xl left-3">
     <input type="text" name="message" value={message}

@@ -1,16 +1,8 @@
 import { createContext,useContext,useEffect,useState } from 'react'
 import { auth } from '../firebase'
 import { onAuthStateChanged } from 'firebase/auth'
-type User = {
-  displayName:string,
-  email:string,
-  photoURL:string
-}
-type UserContext = {
-  user:User,
-  setUser:React.Dispatch<React.SetStateAction<User>>,
-  loading:boolean
-}
+import { UserContext,User } from '../collections/types'
+
 export const AuthContext = createContext<UserContext|null>(null)
 export const useAuthContext = ():UserContext|null =>{
    return useContext(AuthContext)
