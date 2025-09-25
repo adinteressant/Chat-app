@@ -1,13 +1,17 @@
 import { signOut } from 'firebase/auth'
 import { useAuthContext } from '../context/authContext'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { auth } from '../firebase'
 import Chat from './chat'
 import Messages from './messages'
+import { useState } from 'react'
 
 const Homepage = () => {
-  const navigate = useNavigate()
   const {user,setUser,loading} = useAuthContext()
+  const location = useLocation()
+  const [notificationHidden,setNotificationHidden] = useState<boolean>(true)
+
+
   const handleLogout = async ():Promise<void> =>{
     try{
       await signOut(auth)
@@ -15,12 +19,17 @@ const Homepage = () => {
         displayName:'',
         email:''
       })
-      navigate('/login')
+      window.location.href='/login' 
     }catch(err){
       console.log(err)
     }
   }
-    if(user.displayName && !loading){
+  const refreshPage = () => {
+    setNotificationHidden(true)
+    window.location.href = location.pathname
+  } 
+  
+  if(user.displayName && !loading){
   
     return <div className="p-2">
     <div className="flex gap-1 items-center">
@@ -36,8 +45,13 @@ const Homepage = () => {
       </div>
     </div>
     <div className="w-xl">
-      <div className="m-2 pb-16 flex flex-col bg-slate-600 p-2 w-xl fixed overflow-y-auto top-16 bottom-2 rounded-md">
-        <Messages/>
+      <div className="m-2 pb-16 flex flex-col bg-slate-600 p-0 w-xl fixed overflow-y-auto top-16 bottom-2 rounded-md">
+        <div className={`${notificationHidden && `hidden`} sticky p-1 z-50 w-full bg-amber-400 top-0 left-0 text-amber-800`}>
+            Content has been updated.
+            <span className="underline text-cyan-800 cursor-pointer" 
+              onClick={refreshPage}>Refresh</span> to view latest content.
+        </div>
+          <Messages setNotificationHidden={setNotificationHidden}/>
       </div>
       <Chat/>
       </div>

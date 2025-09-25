@@ -6,11 +6,15 @@ import UserProfile from './UserProfile'
 import { getDocs,where,or } from 'firebase/firestore'
 import { FriendStatus } from '../collections/types'
 import { FriendReqStatus } from '../collections/enums'
-const Messages = () => {
+type MessageProp = {
+  setNotificationHidden:React.Dispatch<React.SetStateAction<boolean>>
+}
+const Messages = ({setNotificationHidden}:MessageProp) => {
   const [Msgs,setMsgs] = useState<DocumentData[]>([])
   const [friendStatus,setFriendStatus] = useState<FriendStatus[]>([])
   const {user} = useAuthContext()
   const bottomRef = useRef<HTMLDivElement|null>(null);
+  let firstLoad = true
   useEffect(()=>{
     const messageRef = collection(db,'chat','global','messages')
     const q = query(messageRef,orderBy('timestamp'))
@@ -19,7 +23,20 @@ const Messages = () => {
       setMsgs(snapshot.docs.map((doc) => doc.data()))
     })
 
-    return ()=>ss()
+    const friendsRef = collection(db,'chat','global','friends')
+    const qry = query(friendsRef)
+    const unsubscribe = onSnapshot(qry,(_snapshot)=>{
+      if(firstLoad){
+        firstLoad=false
+        return
+      }
+      setNotificationHidden(false)
+    })
+
+    return ()=>{
+    ss()
+    unsubscribe()
+    }
   },[])
 
   useEffect(()=>{
@@ -76,7 +93,7 @@ const Messages = () => {
     }
 
     return (
-      <div key={index} className={`flex gap-1 items-end ${position} flex-1`}>
+      <div key={index} className={`flex gap-1 items-end ${position} flex-1 p-2`}>
       {!fromMe &&
         <div className="group relative">
           <img className="w-10 h-10 rounded-full cursor-pointer" src={message.imageURL} alt="photo"/>

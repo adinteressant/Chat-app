@@ -14,5 +14,9 @@ export type FriendStatus = {
   sender:string,
   status:string
 }
+export type NotificationContext = {
+  senderNotification:boolean,
+  setSenderNotification:React.Dispatch<React.SetStateAction<boolean>>,
+}
 
 
