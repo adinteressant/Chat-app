@@ -9,18 +9,23 @@ import { addDoc,collection,or,and } from 'firebase/firestore'
 import { FriendReqStatus } from '../collections/enums'
 import {query,where,getDocs,deleteDoc,doc,updateDoc} from 'firebase/firestore'
 import { checkAddRequest, checkConfirmRequest, checkRemoveRequest } from '../utils/checkOperation'
+import { useInboxHidden, usePrivateChatAccount } from '../zustand/usePrivateChat'
 interface UserProfileProps {
   message: DocumentData;
+  notificationHidden:boolean;
   friendReqStatus: FriendReqStatus;
 }
-const UserProfile = ({message,friendReqStatus}:UserProfileProps) => {
+const UserProfile = ({message,notificationHidden,friendReqStatus}:UserProfileProps) => {
   const [messageDisabled,setMessageDisabled] = useState<boolean>(friendReqStatus!==FriendReqStatus.Friend)
   const [requestDisabled,setRequestDisabled] = useState<boolean>(false)
   const [friendStatus,setFriendStatus] = useState<FriendReqStatus>(friendReqStatus)
   const [loading,setLoading] = useState<boolean>(false)
   const {user} = useAuthContext()
+  const {setPrivateChatAccount} = usePrivateChatAccount()
+  const {setInboxHidden} = useInboxHidden()
   
   const handleFriendReq = async ():Promise<void> => {
+  console.log(requestDisabled)
   const q = query(
   collection(db, 'chat', 'global', 'friends'),
     or(
@@ -110,6 +115,14 @@ const UserProfile = ({message,friendReqStatus}:UserProfileProps) => {
         })
     }
   }
+  const handleMessage = () => {
+    setPrivateChatAccount({
+      name:message.senderName,
+      email:message.sender,
+      photoURL:message.imageURL
+    })
+    setInboxHidden(false) 
+  }
   return <div className=" flex flex-col w-full h-full">
     <div className="border-b border-gray-200 flex-2 flex justify-center items-center">
       <div className="w-full flex flex-col items-center">
@@ -119,8 +132,9 @@ const UserProfile = ({message,friendReqStatus}:UserProfileProps) => {
     </div>
     <div className="flex-1 flex text-cyan-600">
       <button className={`flex-1 flex justify-center items-center
-      ${!requestDisabled && `cursor-pointer hover:bg-cyan-600 hover:text-white`}`}
-      onClick={handleFriendReq} disabled={requestDisabled}
+      ${!requestDisabled && notificationHidden && `cursor-pointer hover:bg-cyan-600 hover:text-white`}
+      ${(requestDisabled || !notificationHidden) && `bg-gray-300 text-white`}`}
+      onClick={handleFriendReq} disabled={requestDisabled || !notificationHidden}
       >
         {loading ? <Loader2 className="animate-spin text-cyan-600 w-8 h-8"/> :
         (friendStatus === FriendReqStatus.NotFriend ? <UserPlus/> 
@@ -129,9 +143,11 @@ const UserProfile = ({message,friendReqStatus}:UserProfileProps) => {
         : <RequestReceived/>)
         }
       </button> 
-      <button disabled={messageDisabled} className={`flex-1 flex justify-center
-                items-center ${!messageDisabled && `cursor-pointer hover:bg-cyan-600 hover:text-white`} ${messageDisabled && `bg-gray-300 text-white`}`}
-            >
+      <button disabled={messageDisabled || !notificationHidden} className={`flex-1 flex justify-center
+                items-center ${!messageDisabled && notificationHidden && `cursor-pointer hover:bg-cyan-600 hover:text-white`}
+              ${(messageDisabled || !notificationHidden) && `bg-gray-300 text-white`}`}
+              onClick={handleMessage}      
+      >
         <MessageCircle/>
       </button>
     </div> 

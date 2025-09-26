@@ -7,9 +7,10 @@ import { getDocs,where,or } from 'firebase/firestore'
 import { FriendStatus } from '../collections/types'
 import { FriendReqStatus } from '../collections/enums'
 type MessageProp = {
-  setNotificationHidden:React.Dispatch<React.SetStateAction<boolean>>
+  setNotificationHidden:React.Dispatch<React.SetStateAction<boolean>>,
+  notificationHidden:boolean,
 }
-const Messages = ({setNotificationHidden}:MessageProp) => {
+const Messages = ({setNotificationHidden,notificationHidden}:MessageProp) => {
   const [Msgs,setMsgs] = useState<DocumentData[]>([])
   const [friendStatus,setFriendStatus] = useState<FriendStatus[]>([])
   const {user} = useAuthContext()
@@ -96,9 +97,12 @@ const Messages = ({setNotificationHidden}:MessageProp) => {
       <div key={index} className={`flex gap-1 items-end ${position} flex-1 p-2`}>
       {!fromMe &&
         <div className="group relative">
-          <img className="w-10 h-10 rounded-full cursor-pointer" src={message.imageURL} alt="photo"/>
+          <div className="w-10">
+            <img className="w-10 h-10 rounded-full cursor-pointer" src={message.imageURL} alt="photo"/>
+          </div>
           <div className="hidden group-hover:block absolute rounded-md w-42 h-32 bg-white z-10">
-            <UserProfile message={message} friendReqStatus={friendReqStatus}/>  
+            <UserProfile message={message} notificationHidden={notificationHidden}
+                  friendReqStatus={friendReqStatus}/>  
           </div>
         </div>}
         <div className="flex flex-col">

@@ -18,5 +18,8 @@ export type NotificationContext = {
   senderNotification:boolean,
   setSenderNotification:React.Dispatch<React.SetStateAction<boolean>>,
 }
-
-
+export type PrivateChatAccount = {
+  name:string,
+  email:string,
+  photoURL:string
+}
