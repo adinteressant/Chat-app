@@ -19,7 +19,7 @@ const Loginpage = () => {
       { merge: true } // update if exists, otherwise create
     )
     }catch(err){
-      console.log(err)
+      console.error(err)
     }finally{
       navigate('/home')
     }

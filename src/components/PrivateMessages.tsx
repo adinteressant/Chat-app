@@ -35,7 +35,7 @@ return <div className="flex flex-col gap-2">
           </div>
         </div>}
         <div className="flex flex-col">
-        {!fromMe && <div className="text-slate-200 text-sm">{name.split(' ')[1]}</div>}
+        {!fromMe && <div className="text-slate-200 text-sm">{name.split(' ')[1] || name}</div>}
         <div className={`${backgroundColor} p-2 rounded-xl text-slate-50`}>
           {message.message}
         </div>

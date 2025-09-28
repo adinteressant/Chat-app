@@ -24,7 +24,7 @@ const Homepage = () => {
       })
       window.location.href='/login' 
     }catch(err){
-      console.log(err)
+      console.error(err)
     }
   }
   const refreshPage = () => {

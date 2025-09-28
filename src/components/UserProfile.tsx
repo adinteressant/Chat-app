@@ -25,7 +25,6 @@ const UserProfile = ({message,notificationHidden,friendReqStatus}:UserProfilePro
   const {setInboxHidden} = useInboxHidden()
   
   const handleFriendReq = async ():Promise<void> => {
-  console.log(requestDisabled)
   const q = query(
   collection(db, 'chat', 'global', 'friends'),
     or(

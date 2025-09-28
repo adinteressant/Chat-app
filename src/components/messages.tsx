@@ -6,9 +6,9 @@ import UserProfile from './UserProfile'
 import { getDocs,where,or } from 'firebase/firestore'
 import { FriendStatus } from '../collections/types'
 import { FriendReqStatus } from '../collections/enums'
-type MessageProp = {
-  setNotificationHidden:React.Dispatch<React.SetStateAction<boolean>>,
-  notificationHidden:boolean,
+interface MessageProp {
+  setNotificationHidden:React.Dispatch<React.SetStateAction<boolean>>;
+  notificationHidden:boolean;
 }
 const Messages = ({setNotificationHidden,notificationHidden}:MessageProp) => {
   const [Msgs,setMsgs] = useState<DocumentData[]>([])
@@ -26,12 +26,22 @@ const Messages = ({setNotificationHidden,notificationHidden}:MessageProp) => {
 
     const friendsRef = collection(db,'chat','global','friends')
     const qry = query(friendsRef)
-    const unsubscribe = onSnapshot(qry,(_snapshot)=>{
+    const unsubscribe = onSnapshot(qry,(snapshot)=>{
+      let user1,user2
+      const users:string[] = []
+      snapshot.docChanges().forEach((change) => {
+        user1 = change.doc.data().sender
+        users.push(user1)
+        user2 = change.doc.data().receiver
+        users.push(user2)
+      })
       if(firstLoad){
         firstLoad=false
         return
       }
-      setNotificationHidden(false)
+      if(users.includes(user.email)){
+        setNotificationHidden(false)
+      }
     })
 
     return ()=>{
