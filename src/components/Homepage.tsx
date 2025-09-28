@@ -47,15 +47,19 @@ const Homepage = () => {
         text-slate-50 bg-cyan-600 rounded-md cursor-pointer" onClick={handleLogout}>Logout</button>
       </div>
       </div>
-      <div className="w-xl relative">
-        <div className="m-2 flex flex-col bg-slate-600 p-0 w-xl fixed overflow-y-auto top-16 bottom-2 rounded-md">
-          <div className={`${notificationHidden && `hidden`} sticky p-1 z-50 w-full bg-amber-400 top-0 left-0 text-amber-800`}>
-            Content has been updated.
-            <span className="underline text-cyan-800 cursor-pointer" 
-              onClick={refreshPage}>Refresh</span> to view latest content.
+      <div className="w-xl">
+        <div className="m-2 bg-slate-600 p-0 w-xl fixed overflow-y-auto top-16 bottom-2 rounded-md">
+          <div className="flex flex-col h-full relative">
+            <div className={`${notificationHidden && `hidden`} flex-1 sticky p-1 z-50 w-full bg-amber-400 top-0 left-0 text-amber-800`}>
+              Content has been updated.
+              <span className="underline text-cyan-800 cursor-pointer" 
+                onClick={refreshPage}>Refresh</span> to view latest content.
+            </div>
+            <div className="flex-15 border-yellow-400">
+              <Messages  setNotificationHidden={setNotificationHidden} notificationHidden={notificationHidden}/>
+            </div>  
+            <Chat typeOfChat="global"/>
           </div>
-          <Messages  setNotificationHidden={setNotificationHidden} notificationHidden={notificationHidden}/>
-          <Chat typeOfChat="global"/>
         </div>
         <div className={`${(inboxHidden || !notificationHidden) &&`hidden`} m-2 fixed left-[40rem] bg-slate-600 p-0 w-xl overflow-y-auto top-16
           bottom-2 rounded-md`}>

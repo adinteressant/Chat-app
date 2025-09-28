@@ -32,7 +32,7 @@ const PrivateChat = () => {
       ss()
     }
   },[privateChatAccount.email])
-    return <div className=" flex flex-col h-full text-slate-200 relative">
+    return <div className="flex flex-col h-full text-slate-200 relative">
     <div className=" flex-1 flex justify-between bg-slate-600 shadow-slate-700 shadow sticky top-0 p-1 z-10">
       <div className="flex items-center gap-4">
         <div className="w-10 h-10">
