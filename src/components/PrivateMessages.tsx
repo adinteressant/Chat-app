@@ -1,6 +1,7 @@
 import { DocumentData } from 'firebase/firestore'
 import { useAuthContext } from '../context/authContext'
 import { useEffect, useRef } from 'react'
+import { decryptMessage } from '../utils/encryptDecrypt';
 interface PrivateMessageProps {
   msgs:DocumentData[];
   photoURL:string;
@@ -37,7 +38,7 @@ return <div className="flex flex-col gap-2">
         <div className="flex flex-col">
         {!fromMe && <div className="text-slate-200 text-sm">{name.split(' ')[1] || name}</div>}
         <div className={`${backgroundColor} p-2 rounded-xl text-slate-50`}>
-          {message.message}
+          {decryptMessage(message.message)}
         </div>
         </div>
       </div>

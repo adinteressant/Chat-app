@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { db } from '../firebase'
 import { useAuthContext } from '../context/authContext'
 import { auth } from '../firebase'
+import { encryptMessage } from '../utils/encryptDecrypt'
 interface ChatProps {
   typeOfChat:string;
   receiver?:string;
@@ -29,7 +30,7 @@ const Chat = ({typeOfChat,receiver=''}:ChatProps) => {
       await addDoc(collection(db,'chat',chatId,'messages'),{
         sender:user.email,
         receiver,
-        message:message.trim(),
+        message:encryptMessage(message.trim()),
         timestamp: ts
       })
       
