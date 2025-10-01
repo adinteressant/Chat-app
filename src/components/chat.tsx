@@ -1,4 +1,4 @@
-import { addDoc,collection, serverTimestamp } from 'firebase/firestore'
+import { addDoc,collection, serverTimestamp,updateDoc,doc, query, onSnapshot, getDocs, where, setDoc } from 'firebase/firestore'
 import { useState } from 'react'
 import { db } from '../firebase'
 import { useAuthContext } from '../context/authContext'
@@ -24,11 +24,18 @@ const Chat = ({typeOfChat,receiver=''}:ChatProps) => {
     }else{
       const [first,second] = [user.email,receiver].sort()
       const chatId = first+'_'+second
+      
+      const ts = serverTimestamp()
       await addDoc(collection(db,'chat',chatId,'messages'),{
         sender:user.email,
         receiver,
         message:message.trim(),
-        timestamp: serverTimestamp()
+        timestamp: ts
+      })
+      
+      const docRef = doc(db, 'chat', 'global', 'friends2',chatId);
+      await updateDoc(docRef, {
+        latestMessageAt: ts
       })
     }
   }

@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore'
+
 export type User = {
   displayName:string,
   email:string,
@@ -22,4 +24,8 @@ export type PrivateChatAccount = {
   name:string,
   email:string,
   photoURL:string
+}
+export interface Friend extends User {
+  status:string,
+  latestMessageAt:Timestamp|null
 }

@@ -1,4 +1,4 @@
-import { DocumentData } from 'firebase/firestore'
+import { DocumentData, setDoc } from 'firebase/firestore'
 import { MessageCircle,UserPlus,Users,Loader2} from 'lucide-react'
 import RequestReceived from './RequestReceived'
 import RequestSent from './RequestSent'
@@ -44,6 +44,8 @@ const UserProfile = ({message,notificationHidden,friendReqStatus}:UserProfilePro
     const snapshot = await getDocs(q)
     setLoading(true) 
     setRequestDisabled(true)
+    const [first,second] = [user.email,message.sender].sort()
+    const fId = first+'_'+second
     switch(friendStatus){
       case FriendReqStatus.NotFriend:
         const reqExists = await checkAddRequest(user,message)
@@ -55,6 +57,12 @@ const UserProfile = ({message,notificationHidden,friendReqStatus}:UserProfilePro
         }
         try{
           await addDoc(collection(db,'chat','global','friends'),{
+            sender:user.email,
+            receiver:message.sender,
+            status:'pending'
+          })
+
+          await setDoc(doc(db,'chat','global','friends2',fId),{ 
             sender:user.email,
             receiver:message.sender,
             status:'pending'
@@ -81,6 +89,9 @@ const UserProfile = ({message,notificationHidden,friendReqStatus}:UserProfilePro
             await updateDoc(doc(db, 'chat', 'global', 'friends', document.id), {
               status: 'accepted'
             })
+            await updateDoc(doc(db,'chat','global','friends2',fId),{
+              status:'accepted'
+            })
           }catch(err){
             console.error(err)
           }finally{
@@ -103,6 +114,7 @@ const UserProfile = ({message,notificationHidden,friendReqStatus}:UserProfilePro
         snapshot.docs.forEach(async (document) => {
           try{
             await deleteDoc(doc(db, 'chat', 'global', 'friends', document.id))
+            await deleteDoc(doc(db,'chat','global','friends2',fId))
           }catch(err){
             console.error(err)
           }finally{
