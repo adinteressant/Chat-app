@@ -1,0 +1,2 @@
+export const INITIAL_MESSAGE_LENGTH = 12
+export const MORE_MESSAGE_LENGTH = 6

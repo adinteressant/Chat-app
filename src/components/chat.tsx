@@ -1,14 +1,15 @@
 import { addDoc,collection, serverTimestamp,updateDoc,doc, query, onSnapshot, getDocs, where, setDoc } from 'firebase/firestore'
-import { useState } from 'react'
+import { RefObject, useState } from 'react'
 import { db } from '../firebase'
 import { useAuthContext } from '../context/authContext'
 import { auth } from '../firebase'
 import { encryptMessage } from '../utils/encryptDecrypt'
 interface ChatProps {
   typeOfChat:string;
+  bottomRef:RefObject<HTMLDivElement|null>;
   receiver?:string;
 }
-const Chat = ({typeOfChat,receiver=''}:ChatProps) => {
+const Chat = ({typeOfChat,bottomRef,receiver=''}:ChatProps) => {
   const {user} = useAuthContext()
   const [message,setMessage] = useState<string>('')
   const handleSend = async ():Promise<void> => {

@@ -1,27 +1,34 @@
-import { useEffect, useRef, useState } from 'react'
+import { RefObject, useEffect, useState } from 'react'
 import { db } from '../firebase'
-import { collection, onSnapshot, orderBy, query,DocumentData } from 'firebase/firestore'
+import { collection, onSnapshot, orderBy, query,DocumentData, limit, QueryDocumentSnapshot} from 'firebase/firestore'
 import { useAuthContext } from '../context/authContext'
 import UserProfile from './UserProfile'
 import { getDocs,where,or } from 'firebase/firestore'
 import { FriendStatus } from '../collections/types'
 import { FriendReqStatus } from '../collections/enums'
+import { Loader2 } from 'lucide-react'
+import { INITIAL_MESSAGE_LENGTH } from '../collections/constants'
 interface MessageProp {
   setNotificationHidden:React.Dispatch<React.SetStateAction<boolean>>;
   notificationHidden:boolean;
+  setLastDoc:React.Dispatch<React.SetStateAction<QueryDocumentSnapshot<DocumentData>|null>>;
+  Msgs:DocumentData[];
+  setMsgs:React.Dispatch<React.SetStateAction<DocumentData[]>>;
+  loadingMore:boolean;
+  bottomRef:RefObject<HTMLDivElement|null>;
 }
-const Messages = ({setNotificationHidden,notificationHidden}:MessageProp) => {
-  const [Msgs,setMsgs] = useState<DocumentData[]>([])
+const Messages = ({setNotificationHidden,notificationHidden,setLastDoc,Msgs,setMsgs,loadingMore,bottomRef}:MessageProp) => {
   const [friendStatus,setFriendStatus] = useState<FriendStatus[]>([])
   const {user} = useAuthContext()
-  const bottomRef = useRef<HTMLDivElement|null>(null);
   let firstLoad = true
   useEffect(()=>{
     const messageRef = collection(db,'chat','global','messages')
-    const q = query(messageRef,orderBy('timestamp'))
+    const q = query(messageRef,orderBy('timestamp','desc'),limit(INITIAL_MESSAGE_LENGTH))
 
     const ss = onSnapshot(q,(snapshot)=>{
-      setMsgs(snapshot.docs.map((doc) => doc.data()))
+      setMsgs(snapshot.docs.map((doc) => doc.data()).reverse())
+      const lastDoc = snapshot.docs[snapshot.docs.length - 1]
+      setLastDoc(lastDoc)
     })
 
     const friendsRef = collection(db,'chat','global','friends')
@@ -49,10 +56,8 @@ const Messages = ({setNotificationHidden,notificationHidden}:MessageProp) => {
     unsubscribe()
     }
   },[])
+  
 
-  useEffect(()=>{
-    bottomRef.current?.scrollIntoView({behavior:'smooth'})
-  },[Msgs])
   useEffect(()=>{
     const getFriendStatus = async():Promise<void> => {
       try{
@@ -76,6 +81,10 @@ const Messages = ({setNotificationHidden,notificationHidden}:MessageProp) => {
   },[])
 
   return <div className="flex flex-col gap-2">
+    {loadingMore &&
+      <div className="flex justify-center">
+      <Loader2 className="animate-spin w-8 h-8 text-slate-300"/>
+    </div>}
   {Msgs.map((message,index) =>{
     let position:string
     let backgroundColor:string

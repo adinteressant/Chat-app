@@ -1,11 +1,11 @@
 import { signOut } from 'firebase/auth'
 import { useAuthContext } from '../context/authContext'
 import { Link, useLocation } from 'react-router-dom'
-import { auth } from '../firebase'
+import { auth, db } from '../firebase'
 import Chat from './chat'
 import Messages from './messages'
 import PrivateChat from './PrivateChat'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Check,Trash,Loader2 } from 'lucide-react'
 import { useInboxHidden, usePrivateChatAccount } from '../zustand/usePrivateChat'
 import InboxLoader from './InboxLoader'
@@ -13,6 +13,8 @@ import Modal from './Modal'
 import { useFriends } from '../zustand/useGetFriends'
 import { Friend, User } from '../collections/types'
 import { handleFriendReq } from '../utils/handleFriendReq'
+import { QueryDocumentSnapshot,DocumentData, collection, query, orderBy, startAfter, limit, getDocs } from 'firebase/firestore'
+import { MORE_MESSAGE_LENGTH } from '../collections/constants'
 const Homepage = () => {
   const {user,setUser,loading} = useAuthContext()
   const location = useLocation()
@@ -22,6 +24,12 @@ const Homepage = () => {
   const {inboxHidden,setInboxHidden} = useInboxHidden()
   const {friends} = useFriends()
   const {setPrivateChatAccount} = usePrivateChatAccount()
+  const chatContainerRef = useRef<HTMLDivElement|null>(null)
+  const bottomRef = useRef<HTMLDivElement|null>(null)
+  const [loadingMore,setLoadingMore] = useState<boolean>(false)
+  const [lastDoc,setLastDoc] = useState<QueryDocumentSnapshot<DocumentData>|null>(null)
+  const [Msgs,setMsgs] = useState<DocumentData[]>([])
+
 
   const handleLogout = async ():Promise<void> =>{
     try{
@@ -57,6 +65,47 @@ const Homepage = () => {
     handleFriendReq('delete',reqSender,user.email,setOperationLoading,refreshPage)
   }
 
+  const handleScroll = async () => {
+    if (!chatContainerRef.current || loadingMore) return;
+    if (chatContainerRef.current.scrollTop === 0 && lastDoc) {
+      setLoadingMore(true);
+      const { messages: olderMessages, lastDoc: newLastDoc } = await getMoreMessages(lastDoc);
+      setMsgs(prev => [...olderMessages, ...prev]);
+      setLastDoc(newLastDoc || null);
+      setLoadingMore(false);
+    }
+  }
+  useEffect(()=>{
+    const scrollToBottom = () => {
+
+      if (!chatContainerRef.current) return;
+      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 50; 
+      // tweak 50px threshold as you like
+
+      if (isNearBottom) {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+    scrollToBottom()
+  },[Msgs])
+  const getMoreMessages = async (lastDoc:QueryDocumentSnapshot<DocumentData>) => {
+    const messagesRef = collection(db, 'chat','global','messages')
+    const q = query(
+      messagesRef,
+      orderBy("timestamp", "desc"),
+      startAfter(lastDoc),
+      limit(MORE_MESSAGE_LENGTH)
+    );
+    const snapshot = await getDocs(q);
+
+    const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const newLastDoc = snapshot.docs[snapshot.docs.length - 1];
+
+    return { messages: messages.reverse(), lastDoc: newLastDoc };
+  }
+
   if(user.displayName && !loading){
   
     return <div className="p-2">
@@ -73,17 +122,19 @@ const Homepage = () => {
       </div>
       </div>
       <div className="w-xl">
-        <div className="m-2 bg-slate-600 p-0 w-xl fixed overflow-y-auto top-16 bottom-2 rounded-md">
+        <div className="m-2 bg-slate-600 p-0 w-xl fixed overflow-y-auto top-16 bottom-2 rounded-md"
+        ref={chatContainerRef} onScroll={handleScroll}>
           <div className="flex flex-col h-full relative">
             <div className={`${notificationHidden && `hidden`} flex-1 sticky p-1 z-50 w-full bg-amber-400 top-0 left-0 text-amber-800`}>
               Content has been updated.
               <span className="underline text-cyan-800 cursor-pointer" 
                 onClick={refreshPage}>Refresh</span> to view latest content.
             </div>
-            <div className="flex-15 border-yellow-400">
-              <Messages  setNotificationHidden={setNotificationHidden} notificationHidden={notificationHidden}/>
+            <div className="flex-15">
+              <Messages  setNotificationHidden={setNotificationHidden} notificationHidden={notificationHidden}
+              setLastDoc={setLastDoc} Msgs={Msgs} setMsgs={setMsgs} loadingMore={loadingMore} bottomRef={bottomRef}/>
             </div>  
-            <Chat typeOfChat="global"/>
+            <Chat typeOfChat="global" bottomRef={bottomRef}/>
           </div>
         </div>
         <div className={`${(inboxHidden || !notificationHidden) &&`hidden`} m-2 fixed left-[40rem] bg-slate-600 p-0 w-xl overflow-y-auto top-16
