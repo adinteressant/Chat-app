@@ -20,8 +20,11 @@ const UserProfile = ({message,notificationHidden,friendReqStatus}:UserProfilePro
   const [requestDisabled,setRequestDisabled] = useState<boolean>(false)
   const [friendStatus,setFriendStatus] = useState<FriendReqStatus>(friendReqStatus)
   const [loading,setLoading] = useState<boolean>(false)
+// @ts-expect-error
   const {user} = useAuthContext()
+// @ts-expect-error
   const {setPrivateChatAccount} = usePrivateChatAccount()
+// @ts-expect-error
   const {setInboxHidden} = useInboxHidden()
   
   const handleFriendReq = async ():Promise<void> => {

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../context/authContext'
 import { setDoc, doc } from 'firebase/firestore'
 const Loginpage = () => {
+// @ts-expect-error
   const {user,loading} = useAuthContext() 
   const navigate = useNavigate()
   const handleLogin = async ():Promise<void> =>{

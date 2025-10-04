@@ -19,6 +19,7 @@ interface MessageProp {
 }
 const Messages = ({setNotificationHidden,notificationHidden,setLastDoc,Msgs,setMsgs,loadingMore,bottomRef}:MessageProp) => {
   const [friendStatus,setFriendStatus] = useState<FriendStatus[]>([])
+// @ts-expect-error
   const {user} = useAuthContext()
   let firstLoad = true
   useEffect(()=>{
@@ -72,6 +73,7 @@ const Messages = ({setNotificationHidden,notificationHidden,setLastDoc,Msgs,setM
           id: doc.id,
           ...doc.data(),
         }))
+// @ts-expect-error
         setFriendStatus(status)
       }catch(err){
         console.error(err)

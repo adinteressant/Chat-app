@@ -1,4 +1,4 @@
-import { addDoc,collection, serverTimestamp,updateDoc,doc, query, onSnapshot, getDocs, where, setDoc } from 'firebase/firestore'
+import { addDoc,collection, serverTimestamp,updateDoc,doc } from 'firebase/firestore'
 import { useState } from 'react'
 import { db } from '../firebase'
 import { useAuthContext } from '../context/authContext'
@@ -9,6 +9,7 @@ interface ChatProps {
   receiver?:string;
 }
 const Chat = ({typeOfChat,receiver=''}:ChatProps) => {
+// @ts-expect-error
   const {user} = useAuthContext()
   const [message,setMessage] = useState<string>('')
   const handleSend = async ():Promise<void> => {

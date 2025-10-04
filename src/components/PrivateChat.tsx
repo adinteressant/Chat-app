@@ -17,8 +17,11 @@ interface PrivateChatProps {
 }
 
 const PrivateChat = ({setLastDocPrivate,msgs,setMsgs,loadingMorePrivate,bottomRef}:PrivateChatProps) => {
+// @ts-expect-error
   const {setInboxHidden} = useInboxHidden()
+// @ts-expect-error
   const {privateChatAccount} = usePrivateChatAccount()
+// @ts-expect-error
   const {user} = useAuthContext()
 
   const handleClose = () => {

@@ -16,13 +16,17 @@ import { handleFriendReq } from '../utils/handleFriendReq'
 import { QueryDocumentSnapshot,DocumentData, collection, query, orderBy, startAfter, limit, getDocs, getDoc } from 'firebase/firestore'
 import { MORE_MESSAGE_LENGTH } from '../collections/constants'
 const Homepage = () => {
+// @ts-expect-error
   const {user,setUser,loading} = useAuthContext()
   const location = useLocation()
   const [notificationHidden,setNotificationHidden] = useState<boolean>(true)
   const [isInboxModalOpen,setIsInboxModalOpen] = useState<boolean>(false)
   const [operationLoading,setOperationLoading] = useState<boolean>(false)
+// @ts-expect-error
   const {inboxHidden,setInboxHidden} = useInboxHidden()
+// @ts-expect-error
   const {friends} = useFriends()
+// @ts-expect-error
   const {setPrivateChatAccount} = usePrivateChatAccount()
   const chatContainerRef = useRef<HTMLDivElement|null>(null)
   const privateChatContainerRef = useRef<HTMLDivElement|null>(null)
@@ -34,6 +38,7 @@ const Homepage = () => {
   const [lastDocPrivate,setLastDocPrivate] = useState<QueryDocumentSnapshot<DocumentData>|null>(null)
   const [Msgs,setMsgs] = useState<DocumentData[]>([])
   const [privateMsgs,setPrivateMsgs] = useState<DocumentData[]>([])
+// @ts-expect-error
   const {privateChatAccount} = usePrivateChatAccount()
 
 

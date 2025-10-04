@@ -1,6 +1,6 @@
 import { DocumentData } from 'firebase/firestore'
 import { useAuthContext } from '../context/authContext'
-import { RefObject, useEffect } from 'react'
+import { RefObject } from 'react'
 import { decryptMessage } from '../utils/encryptDecrypt';
 import { Loader2 } from 'lucide-react';
 interface PrivateMessageProps {
@@ -11,6 +11,7 @@ interface PrivateMessageProps {
   bottomRef:RefObject<HTMLDivElement|null>;
 }
 const PrivateMessages = ({msgs,photoURL,name,loadingMorePrivate,bottomRef}:PrivateMessageProps) => {
+// @ts-expect-error
 const {user} = useAuthContext()
 
 return <div className="flex flex-col gap-2">

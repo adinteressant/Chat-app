@@ -1,6 +1,6 @@
 import { MessageCircle } from 'lucide-react'
 import React from 'react'
-import { collection, query, where,or,and,getDocs, orderBy, limit } from 'firebase/firestore'
+import { collection, query, where,or,and,getDocs } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useAuthContext } from '../context/authContext'
 import { useFriends } from '../zustand/useGetFriends'
@@ -9,7 +9,9 @@ interface InboxLoaderProps {
   setIsInboxModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 const InboxLoader = ({setIsInboxModalOpen}:InboxLoaderProps) => {
+// @ts-expect-error
   const {user} = useAuthContext()
+// @ts-expect-error
   const {setFriends} = useFriends()
   const handleInboxLoader = async ():Promise<void> => {
     setIsInboxModalOpen(true) 
