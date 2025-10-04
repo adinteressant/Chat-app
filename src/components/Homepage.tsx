@@ -13,7 +13,7 @@ import Modal from './Modal'
 import { useFriends } from '../zustand/useGetFriends'
 import { Friend, User } from '../collections/types'
 import { handleFriendReq } from '../utils/handleFriendReq'
-import { QueryDocumentSnapshot,DocumentData, collection, query, orderBy, startAfter, limit, getDocs } from 'firebase/firestore'
+import { QueryDocumentSnapshot,DocumentData, collection, query, orderBy, startAfter, limit, getDocs, getDoc } from 'firebase/firestore'
 import { MORE_MESSAGE_LENGTH } from '../collections/constants'
 const Homepage = () => {
   const {user,setUser,loading} = useAuthContext()
@@ -25,10 +25,16 @@ const Homepage = () => {
   const {friends} = useFriends()
   const {setPrivateChatAccount} = usePrivateChatAccount()
   const chatContainerRef = useRef<HTMLDivElement|null>(null)
+  const privateChatContainerRef = useRef<HTMLDivElement|null>(null)
   const bottomRef = useRef<HTMLDivElement|null>(null)
+  const bottomRefPrivate = useRef<HTMLDivElement|null>(null)
   const [loadingMore,setLoadingMore] = useState<boolean>(false)
+  const [loadingMorePrivate,setLoadingMorePrivate] = useState<boolean>(false)
   const [lastDoc,setLastDoc] = useState<QueryDocumentSnapshot<DocumentData>|null>(null)
+  const [lastDocPrivate,setLastDocPrivate] = useState<QueryDocumentSnapshot<DocumentData>|null>(null)
   const [Msgs,setMsgs] = useState<DocumentData[]>([])
+  const [privateMsgs,setPrivateMsgs] = useState<DocumentData[]>([])
+  const {privateChatAccount} = usePrivateChatAccount()
 
 
   const handleLogout = async ():Promise<void> =>{
@@ -68,13 +74,28 @@ const Homepage = () => {
   const handleScroll = async () => {
     if (!chatContainerRef.current || loadingMore) return;
     if (chatContainerRef.current.scrollTop === 0 && lastDoc) {
-      setLoadingMore(true);
-      const { messages: olderMessages, lastDoc: newLastDoc } = await getMoreMessages(lastDoc);
-      setMsgs(prev => [...olderMessages, ...prev]);
-      setLastDoc(newLastDoc || null);
-      setLoadingMore(false);
+      setLoadingMore(true)
+      const { messages: olderMessages, lastDoc: newLastDoc } = await getMoreMessages(lastDoc)
+      setMsgs(prev => [...olderMessages, ...prev])
+      setLastDoc(newLastDoc || null)
+      setLoadingMore(false)
     }
   }
+
+  const handleScrollPrivate = async () => {
+    if(!privateChatContainerRef.current || loadingMorePrivate) return;
+    
+    const [first,second] = [user.email,privateChatAccount.email].sort()
+    const chatId = first+'_'+second
+    if(privateChatContainerRef.current.scrollTop === 0 && lastDocPrivate){
+      setLoadingMorePrivate(true)
+      const {messages:olderMessages,lastDoc:newLastDoc} = await getMoreMessagesPrivate(lastDocPrivate,chatId)
+      setPrivateMsgs(prev => [...olderMessages,...prev])
+      setLastDocPrivate(newLastDoc||null)
+      setLoadingMorePrivate(false)
+    }
+  }
+
   useEffect(()=>{
     const scrollToBottom = () => {
 
@@ -90,6 +111,21 @@ const Homepage = () => {
     }
     scrollToBottom()
   },[Msgs])
+  useEffect(()=>{
+    const scrollToBottom = () => {
+
+      if (!privateChatContainerRef.current) return;
+      const { scrollTop, scrollHeight, clientHeight } = privateChatContainerRef.current;
+
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 50; 
+      // tweak 50px threshold as you like
+
+      if (isNearBottom) {
+        bottomRefPrivate.current?.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+    scrollToBottom()
+  },[privateMsgs])
   const getMoreMessages = async (lastDoc:QueryDocumentSnapshot<DocumentData>) => {
     const messagesRef = collection(db, 'chat','global','messages')
     const q = query(
@@ -97,13 +133,27 @@ const Homepage = () => {
       orderBy("timestamp", "desc"),
       startAfter(lastDoc),
       limit(MORE_MESSAGE_LENGTH)
-    );
-    const snapshot = await getDocs(q);
+    )
+    const snapshot = await getDocs(q)
 
-    const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    const newLastDoc = snapshot.docs[snapshot.docs.length - 1];
+    const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    const newLastDoc = snapshot.docs[snapshot.docs.length - 1]
 
-    return { messages: messages.reverse(), lastDoc: newLastDoc };
+    return { messages: messages.reverse(), lastDoc: newLastDoc }
+  }
+  const getMoreMessagesPrivate = async (lastDoc:QueryDocumentSnapshot<DocumentData>,chatId:string) => {
+    const messageRef = collection(db,'chat',chatId,'messages')
+    const q = query(
+      messageRef,
+      orderBy('timestamp','desc'),
+      startAfter(lastDoc),
+      limit(MORE_MESSAGE_LENGTH)
+    )
+    const snapshot = await getDocs(q)
+    const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    const newLastDoc = snapshot.docs[snapshot.docs.length - 1]
+
+    return {messages:messages.reverse(),lastDoc:newLastDoc}
   }
 
   if(user.displayName && !loading){
@@ -134,12 +184,14 @@ const Homepage = () => {
               <Messages  setNotificationHidden={setNotificationHidden} notificationHidden={notificationHidden}
               setLastDoc={setLastDoc} Msgs={Msgs} setMsgs={setMsgs} loadingMore={loadingMore} bottomRef={bottomRef}/>
             </div>  
-            <Chat typeOfChat="global" bottomRef={bottomRef}/>
+            <Chat typeOfChat="global"/>
           </div>
         </div>
         <div className={`${(inboxHidden || !notificationHidden) &&`hidden`} m-2 fixed left-[40rem] bg-slate-600 p-0 w-xl overflow-y-auto top-16
-          bottom-2 rounded-md`}>
-          <PrivateChat/>  
+          bottom-2 rounded-md`} ref={privateChatContainerRef} onScroll={handleScrollPrivate}>
+          <PrivateChat
+          setLastDocPrivate={setLastDocPrivate} msgs={privateMsgs} setMsgs={setPrivateMsgs} 
+            loadingMorePrivate={loadingMorePrivate} bottomRef={bottomRefPrivate}/>  
         </div>
       </div>
       <Modal

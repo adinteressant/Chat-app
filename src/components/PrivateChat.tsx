@@ -1,12 +1,22 @@
 import { useInboxHidden, usePrivateChatAccount } from '../zustand/usePrivateChat'
 import { X } from 'lucide-react'
 import Chat from './chat'
-import { useState,useEffect } from 'react'
-import { collection,onSnapshot,query,orderBy, DocumentData,where } from 'firebase/firestore'
+import { useEffect, RefObject } from 'react'
+import { collection,onSnapshot,query,orderBy, DocumentData,limit, QueryDocumentSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useAuthContext } from '../context/authContext'
 import PrivateMessages from './PrivateMessages'
-const PrivateChat = () => {
+import { INITIAL_MESSAGE_LENGTH } from '../collections/constants'
+
+interface PrivateChatProps {
+  setLastDocPrivate:React.Dispatch<React.SetStateAction<QueryDocumentSnapshot<DocumentData>|null>>;
+  msgs:DocumentData[];
+  setMsgs:React.Dispatch<React.SetStateAction<DocumentData[]>>;
+  loadingMorePrivate:boolean; 
+  bottomRef:RefObject<HTMLDivElement|null>;
+}
+
+const PrivateChat = ({setLastDocPrivate,msgs,setMsgs,loadingMorePrivate,bottomRef}:PrivateChatProps) => {
   const {setInboxHidden} = useInboxHidden()
   const {privateChatAccount} = usePrivateChatAccount()
   const {user} = useAuthContext()
@@ -14,7 +24,6 @@ const PrivateChat = () => {
   const handleClose = () => {
     setInboxHidden(true)
   }
-  const [msgs,setMsgs] = useState<DocumentData[]>([])
   useEffect(()=>{
     if (!privateChatAccount.email) return
     const [first,second] = [privateChatAccount.email,user.email].sort()
@@ -22,11 +31,14 @@ const PrivateChat = () => {
     const messageRef = collection(db,'chat',chatId,'messages')
     const q = query(
       messageRef,
-      orderBy("timestamp")
+      orderBy('timestamp','desc'),
+      limit(INITIAL_MESSAGE_LENGTH)
     )
 
     const ss = onSnapshot(q,(snapshot)=>{
-      setMsgs(snapshot.docs.map((doc) => doc.data()))
+      setMsgs((snapshot.docs.map((doc) => doc.data()).reverse()))
+      const lastDoc = snapshot.docs[snapshot.docs.length - 1]
+      setLastDocPrivate(lastDoc)
     })
     return ()=>{
       ss()
@@ -45,7 +57,8 @@ const PrivateChat = () => {
       </div> 
     </div>
     <div className="border-t-gray-400 flex-15">
-     <PrivateMessages msgs={msgs} photoURL={privateChatAccount.photoURL} name={privateChatAccount.name}/> 
+     <PrivateMessages msgs={msgs} photoURL={privateChatAccount.photoURL} name={privateChatAccount.name}
+      loadingMorePrivate={loadingMorePrivate} bottomRef={bottomRef}/> 
     </div>
     <Chat typeOfChat="private" receiver={privateChatAccount.email}/>
   </div>

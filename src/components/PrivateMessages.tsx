@@ -1,20 +1,23 @@
 import { DocumentData } from 'firebase/firestore'
 import { useAuthContext } from '../context/authContext'
-import { useEffect, useRef } from 'react'
+import { RefObject, useEffect } from 'react'
 import { decryptMessage } from '../utils/encryptDecrypt';
+import { Loader2 } from 'lucide-react';
 interface PrivateMessageProps {
   msgs:DocumentData[];
   photoURL:string;
   name:string;
+  loadingMorePrivate:boolean;
+  bottomRef:RefObject<HTMLDivElement|null>;
 }
-const PrivateMessages = ({msgs,photoURL,name}:PrivateMessageProps) => {
+const PrivateMessages = ({msgs,photoURL,name,loadingMorePrivate,bottomRef}:PrivateMessageProps) => {
 const {user} = useAuthContext()
-const bottomRef = useRef<HTMLDivElement|null>(null)
 
-useEffect(()=>{
-  bottomRef.current?.scrollIntoView({behavior:'smooth'})
-},[msgs])
 return <div className="flex flex-col gap-2">
+    {loadingMorePrivate &&
+      <div className="flex justify-center">
+      <Loader2 className="animate-spin w-8 h-8 text-slate-300"/>
+    </div>}
   {msgs.map((message,index) =>{
     let position:string
     let backgroundColor:string
