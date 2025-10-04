@@ -13,7 +13,7 @@ import Modal from './Modal'
 import { useFriends } from '../zustand/useGetFriends'
 import { Friend, User } from '../collections/types'
 import { handleFriendReq } from '../utils/handleFriendReq'
-import { QueryDocumentSnapshot,DocumentData, collection, query, orderBy, startAfter, limit, getDocs, getDoc } from 'firebase/firestore'
+import { QueryDocumentSnapshot,DocumentData, collection, query, orderBy, startAfter, limit, getDocs } from 'firebase/firestore'
 import { MORE_MESSAGE_LENGTH } from '../collections/constants'
 const Homepage = () => {
 // @ts-expect-error
