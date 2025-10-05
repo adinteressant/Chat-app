@@ -1,7 +1,6 @@
-import { signOut } from 'firebase/auth'
 import { useAuthContext } from '../context/authContext'
 import { Link, useLocation } from 'react-router-dom'
-import { auth, db } from '../firebase'
+import { db } from '../firebase'
 import Chat from './chat'
 import Messages from './messages'
 import PrivateChat from './PrivateChat'
