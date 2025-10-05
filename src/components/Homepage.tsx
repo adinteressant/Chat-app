@@ -6,15 +6,14 @@ import Chat from './chat'
 import Messages from './messages'
 import PrivateChat from './PrivateChat'
 import { useEffect, useRef, useState } from 'react'
-import { Check,Trash,Loader2 } from 'lucide-react'
 import { useInboxHidden, usePrivateChatAccount } from '../zustand/usePrivateChat'
-import InboxLoader from './InboxLoader'
-import Modal from './Modal'
+import AuthUserInfo from './AuthUserInfo'
 import { useFriends } from '../zustand/useGetFriends'
-import { Friend, User } from '../collections/types'
+import { User } from '../collections/types'
 import { handleFriendReq } from '../utils/handleFriendReq'
 import { QueryDocumentSnapshot,DocumentData, collection, query, orderBy, startAfter, limit, getDocs } from 'firebase/firestore'
 import { MORE_MESSAGE_LENGTH } from '../collections/constants'
+import FriendsModal from './FriendsModal'
 const Homepage = () => {
 // @ts-expect-error
   const {user,setUser,loading} = useAuthContext()
@@ -163,90 +162,44 @@ const Homepage = () => {
 
   if(user.displayName && !loading){
   
-    return <div className="p-2">
-    <div className="flex gap-2 items-center">
-      <div>
-        <img src={user.photoURL} alt="photo" className="rounded-full w-10 h-10"/>
-      </div>
-      <div>{user.displayName}</div>
-    
-      <InboxLoader setIsInboxModalOpen={setIsInboxModalOpen}/>
-      <div>
-        <button className="p-1.5 hover:bg-cyan-700
-        text-slate-50 bg-cyan-600 rounded-md cursor-pointer" onClick={handleLogout}>Logout</button>
-      </div>
-      </div>
-      <div className="w-xl">
-        <div className="m-2 bg-slate-600 p-0 w-xl fixed overflow-y-auto top-16 bottom-2 rounded-md"
-        ref={chatContainerRef} onScroll={handleScroll}>
-          <div className="flex flex-col h-full relative">
-            <div className={`${notificationHidden && `hidden`} flex-1 sticky p-1 z-50 w-full bg-amber-400 top-0 left-0 text-amber-800`}>
-              Content has been updated.
-              <span className="underline text-cyan-800 cursor-pointer" 
-                onClick={refreshPage}>Refresh</span> to view latest content.
-            </div>
-            <div className="flex-15">
-              <Messages  setNotificationHidden={setNotificationHidden} notificationHidden={notificationHidden}
-              setLastDoc={setLastDoc} Msgs={Msgs} setMsgs={setMsgs} loadingMore={loadingMore} bottomRef={bottomRef}/>
-            </div>  
-            <Chat typeOfChat="global"/>
+    return <div className="p-2 flex flex-col h-screen">
+
+      {/*auth user information*/}
+      <AuthUserInfo setIsInboxModalOpen={setIsInboxModalOpen} handleLogout={handleLogout}/> 
+      
+      <div className="flex gap-10 flex-1 border">
+      
+        {/*group chat section*/}
+      <div className={`m-2 flex-1 bg-slate-600 p-0 rounded-md flex flex-col h-96`}>
+          <div className={`${notificationHidden && `hidden`} p-2 z-50 w-full bg-amber-400 text-amber-800`}>
+            Content has been updated.
+            <span className="underline text-cyan-800 cursor-pointer" 
+            onClick={refreshPage}>Refresh</span> to view latest content.
           </div>
-        </div>
-        <div className={`${(inboxHidden || !notificationHidden) &&`hidden`} m-2 fixed left-[40rem] bg-slate-600 p-0 w-xl overflow-y-auto top-16
-          bottom-2 rounded-md`} ref={privateChatContainerRef} onScroll={handleScrollPrivate}>
-          <PrivateChat
-          setLastDocPrivate={setLastDocPrivate} msgs={privateMsgs} setMsgs={setPrivateMsgs} 
-            loadingMorePrivate={loadingMorePrivate} bottomRef={bottomRefPrivate}/>  
-        </div>
+
+          <div className="flex-1 overflow-y-auto" onScroll={handleScroll} ref={chatContainerRef}>
+            <Messages  setNotificationHidden={setNotificationHidden} notificationHidden={notificationHidden}
+            setLastDoc={setLastDoc} Msgs={Msgs} setMsgs={setMsgs} loadingMore={loadingMore} bottomRef={bottomRef}/>
+          </div>
+
+          <Chat typeOfChat="global"/>
       </div>
-      <Modal
-        isOpen={isInboxModalOpen}
-        onClose={() => setIsInboxModalOpen(false)}
-        title="Inbox"
-      >
-        <div className="flex flex-col gap-2 text-slate-50">
-          {
-            friends.map((friend:Friend) => (
-              <div key={friend.email} className="items-center pr-2 justify-between flex border-b border-gray-500 p-1">
-                <div className="flex gap-2 items-center">
-                  <img src={friend.photoURL} alt="photo" className="w-10 h-10 rounded-full"/>
-                  <div>{friend.displayName}</div>
-                </div>
-                <div>
-                { friend.status=='accepted' ?
-                  <button className="bg-cyan-600 p-1 rounded-md hover:bg-cyan-700 cursor-pointer"
-                  onClick={()=>{handleMessage(friend)}}>
-                    Message
-                  </button>
-                : <div className="flex gap-2">
-                    <button className="w-8 h-8 flex justify-center items-center p-1 rounded-sm bg-cyan-600 hover:bg-cyan-700
-                        cursor-pointer"
-                      onClick={()=>{handleAcceptRequest(friend.email)}}
-                      disabled={operationLoading}>
-                        {operationLoading?
-                          <Loader2 className="animate-spin w-5 h-5"/>
-                          :
-                          <Check className="w-5 h-5"/>
-                        }
-                    </button>
-                    <button className="w-8 h-8 flex justify-center items-center p-1 rounded-sm bg-red-600/50 
-                        hover:bg-red-600/60 cursor-pointer"
-                      onClick={()=>{handleDeleteRequest(friend.email)}}
-                      disabled={operationLoading}>
-                        {operationLoading?
-                          <Loader2 className="animate-spin w-5 h-5"/>
-                          :
-                          <Trash className="w-5 h-5"/>
-                        }
-                    </button>
-                  </div>
-                  }
-                </div>
-              </div>
-            ))
-          }
+        
+        {/*private messaging section*/}
+        <div className={`${(inboxHidden || !notificationHidden) &&`hidden`} h-96 flex-1 m-2 bg-slate-600 p-0 
+          rounded-md flex flex-col text-slate-50`}>
+          <PrivateChat setLastDocPrivate={setLastDocPrivate} msgs={privateMsgs} setMsgs={setPrivateMsgs} 
+            loadingMorePrivate={loadingMorePrivate} bottomRef={bottomRefPrivate} 
+            privateChatContainerRef={privateChatContainerRef} handleScrollPrivate={handleScrollPrivate}/>  
         </div>
-      </Modal>
+
+      </div>
+     
+      {/*friends modal*/}
+      <FriendsModal isInboxModalOpen={isInboxModalOpen} setIsInboxModalOpen={setIsInboxModalOpen} 
+        handleMessage={handleMessage} handleAcceptRequest={handleAcceptRequest} handleDeleteRequest={handleDeleteRequest}
+        operationLoading={operationLoading}/> 
+
     </div>
   }
   if(loading){

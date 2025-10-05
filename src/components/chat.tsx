@@ -41,7 +41,7 @@ const Chat = ({typeOfChat,receiver=''}:ChatProps) => {
       })
     }
   }
-  return <div className="p-2 flex gap-1 sticky w-xl bottom-4">
+  return <div className="p-2 flex gap-1 w-full">
     <input type="text" name="message" value={message}
       placeholder="Send a message"
     className="p-1.5 flex-grow rounded-md bg-slate-100 text-slate-950"

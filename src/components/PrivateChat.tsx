@@ -14,9 +14,12 @@ interface PrivateChatProps {
   setMsgs:React.Dispatch<React.SetStateAction<DocumentData[]>>;
   loadingMorePrivate:boolean; 
   bottomRef:RefObject<HTMLDivElement|null>;
+  privateChatContainerRef:RefObject<HTMLDivElement|null>;
+  handleScrollPrivate:()=>Promise<void>
 }
 
-const PrivateChat = ({setLastDocPrivate,msgs,setMsgs,loadingMorePrivate,bottomRef}:PrivateChatProps) => {
+const PrivateChat = ({setLastDocPrivate,msgs,setMsgs,loadingMorePrivate,bottomRef,
+                      privateChatContainerRef,handleScrollPrivate}:PrivateChatProps) => {
 // @ts-expect-error
   const {setInboxHidden} = useInboxHidden()
 // @ts-expect-error
@@ -47,8 +50,8 @@ const PrivateChat = ({setLastDocPrivate,msgs,setMsgs,loadingMorePrivate,bottomRe
       ss()
     }
   },[privateChatAccount.email])
-    return <div className="flex flex-col h-full text-slate-200 relative">
-    <div className=" flex-1 flex justify-between bg-slate-600 shadow-slate-700 shadow sticky top-0 p-1 z-10">
+    return <>
+    <div className="p-1 flex justify-between bg-slate-600 shadow-slate-700 shadow z-10">
       <div className="flex items-center gap-4">
         <div className="w-10 h-10">
           <img src={privateChatAccount.photoURL} className="w-10 h-10 rounded-full" alt="photo"/>
@@ -59,11 +62,11 @@ const PrivateChat = ({setLastDocPrivate,msgs,setMsgs,loadingMorePrivate,bottomRe
         <X className="cursor-pointer" onClick={handleClose}/> 
       </div> 
     </div>
-    <div className="border-t-gray-400 flex-15">
+    <div className="border-t-gray-400 flex-1 overflow-y-auto" ref={privateChatContainerRef} onScroll={handleScrollPrivate}>
      <PrivateMessages msgs={msgs} photoURL={privateChatAccount.photoURL} name={privateChatAccount.name}
       loadingMorePrivate={loadingMorePrivate} bottomRef={bottomRef}/> 
     </div>
     <Chat typeOfChat="private" receiver={privateChatAccount.email}/>
-  </div>
+  </>
 }
 export default PrivateChat
