@@ -127,7 +127,7 @@ const Messages = ({setNotificationHidden,notificationHidden,setLastDoc,Msgs,setM
           </div>
         </div>}
         <div className="flex flex-col">
-        {!fromMe && <div className="text-slate-200 text-sm">{message.senderName.split(' ')[1]}</div>}
+        {!fromMe && <div className="text-slate-200 text-sm">{message.senderName.split(' ')[1] || message.senderName}</div>}
         <div className={`${backgroundColor} p-2 rounded-xl text-slate-50`}>
           {message.message}
         </div>

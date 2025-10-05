@@ -40,19 +40,6 @@ const Homepage = () => {
 // @ts-expect-error
   const {privateChatAccount} = usePrivateChatAccount()
 
-
-  const handleLogout = async ():Promise<void> =>{
-    try{
-      await signOut(auth)
-      setUser({
-        displayName:'',
-        email:''
-      })
-      window.location.href='/login' 
-    }catch(err){
-      console.error(err)
-    }
-  }
   const refreshPage = ():void => {
     setNotificationHidden(true)
     window.location.href = location.pathname
@@ -165,7 +152,7 @@ const Homepage = () => {
     return <div className="p-2 pb-14 flex flex-col h-screen">
 
       {/*auth user information*/}
-      <AuthUserInfo setIsInboxModalOpen={setIsInboxModalOpen} handleLogout={handleLogout}/> 
+      <AuthUserInfo setIsInboxModalOpen={setIsInboxModalOpen}/> 
       
       <div className="flex gap-10 p-2 h-full">
       

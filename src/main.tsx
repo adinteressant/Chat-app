@@ -6,6 +6,7 @@ import App from './App.tsx'
 
 import Homepage from './components/Homepage.tsx'
 import Loginpage from './components/Loginpage.tsx'
+import LogoutPage from './components/LogoutPage.tsx'
 const router = createBrowserRouter([
   {
     path:'/',
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
       {
         path:'home',
         element:<Homepage/>
+      },
+      {
+        path:'logout',
+        element:<LogoutPage/>
       }
     ]
   }

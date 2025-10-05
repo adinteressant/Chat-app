@@ -1,12 +1,12 @@
+import { Link } from 'react-router-dom'
 import { useAuthContext } from '../context/authContext'
 import InboxLoader from './InboxLoader'
 
 interface AuthUserInfoProps {
   setIsInboxModalOpen:React.Dispatch<React.SetStateAction<boolean>>,
-  handleLogout:()=>Promise<void>
 }
 
-const AuthUserInfo = ({setIsInboxModalOpen,handleLogout}:AuthUserInfoProps) => {
+const AuthUserInfo = ({setIsInboxModalOpen}:AuthUserInfoProps) => {
 // @ts-expect-error
   const {user} = useAuthContext()
   return <div className="flex gap-2 items-center">
@@ -17,8 +17,8 @@ const AuthUserInfo = ({setIsInboxModalOpen,handleLogout}:AuthUserInfoProps) => {
     
         <InboxLoader setIsInboxModalOpen={setIsInboxModalOpen}/>
         <div>
-          <button className="p-1.5 hover:bg-cyan-700
-          text-slate-50 bg-cyan-600 rounded-md cursor-pointer" onClick={handleLogout}>Logout</button>
+          <Link className="p-1.5 hover:bg-cyan-700
+          text-slate-50 bg-cyan-600 rounded-md cursor-pointer" to={'/logout'}>Logout</Link>
         </div>
       </div>
 }

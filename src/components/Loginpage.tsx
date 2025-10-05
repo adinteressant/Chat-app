@@ -21,6 +21,8 @@ const Loginpage = () => {
     )
     }catch(err){
       console.error(err)
+      navigate('/logout')
+
     }finally{
       navigate('/home')
     }

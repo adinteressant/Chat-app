@@ -41,14 +41,18 @@ const Chat = ({typeOfChat,receiver=''}:ChatProps) => {
       })
     }
   }
-  return <div className="p-2 flex gap-1 w-full">
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    handleSend()
+  }
+  return <form className="p-2 flex gap-1 w-full" onSubmit={handleSubmit} autoComplete='off'>
     <input type="text" name="message" value={message}
       placeholder="Send a message"
     className="p-1.5 flex-grow rounded-md bg-slate-100 text-slate-950"
     onChange={(e:React.ChangeEvent<HTMLInputElement>):void=>{setMessage(e.target.value)}}/>
-    <button onClick={handleSend} className="cursor-pointer bg-cyan-600 p-1.5 hover:bg-cyan-700
+    <button  className="cursor-pointer bg-cyan-600 p-1.5 hover:bg-cyan-700
     text-slate-50 rounded-md">Send</button> 
-    </div>
+    </form>
 }
 
 export default Chat
