@@ -162,15 +162,15 @@ const Homepage = () => {
 
   if(user.displayName && !loading){
   
-    return <div className="p-2 flex flex-col h-screen">
+    return <div className="p-2 pb-14 flex flex-col h-screen">
 
       {/*auth user information*/}
       <AuthUserInfo setIsInboxModalOpen={setIsInboxModalOpen} handleLogout={handleLogout}/> 
       
-      <div className="flex gap-10 flex-1 border">
+      <div className="flex gap-10 p-2 h-full">
       
         {/*group chat section*/}
-      <div className={`m-2 flex-1 bg-slate-600 p-0 rounded-md flex flex-col h-96`}>
+      <div className={`flex-1 bg-slate-600 rounded-md flex flex-col h-full`}>
           <div className={`${notificationHidden && `hidden`} p-2 z-50 w-full bg-amber-400 text-amber-800`}>
             Content has been updated.
             <span className="underline text-cyan-800 cursor-pointer" 
@@ -186,7 +186,7 @@ const Homepage = () => {
       </div>
         
         {/*private messaging section*/}
-        <div className={`${(inboxHidden || !notificationHidden) &&`hidden`} h-96 flex-1 m-2 bg-slate-600 p-0 
+        <div className={`${(inboxHidden || !notificationHidden) &&`hidden`} h-full flex-1 bg-slate-600
           rounded-md flex flex-col text-slate-50`}>
           <PrivateChat setLastDocPrivate={setLastDocPrivate} msgs={privateMsgs} setMsgs={setPrivateMsgs} 
             loadingMorePrivate={loadingMorePrivate} bottomRef={bottomRefPrivate} 
